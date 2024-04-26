@@ -25,9 +25,21 @@
     onMount(async () => {
         js = await data.json
     })
-    
+
     // Filter for all keys
     $: filteredData = js.filter((row) => Object.keys(row).some((key) => String(row[key]).toLowerCase().includes(search.toLowerCase()))).slice(index, index + 10)
+
+    // Download filtered data
+    const download = () => {
+        const csv = filteredData.map(row => Object.values(row).join(',')).join('\n')
+        const blob = new Blob([csv], {type: 'text/csv'})
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.download = 'horario.csv'
+        link.href = url
+        link.click()
+    }
+
 </script>   
 
 
@@ -35,6 +47,8 @@
     <Loading />
 {:then _}
     <div class="h-full p-4">
+        <Button color="light" on:click={() => download()} class="w-full">Download</Button>
+    
         <TableSearch placeholder="Pesquisar..."  bind:inputValue={search} hoverable={true}/>
         <Table>
             <TableHead>
