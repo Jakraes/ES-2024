@@ -13,7 +13,11 @@
             <GradientButton color="pinkToOrange" size="xl" on:click={() => val = 1} class="text-xl drop-shadow-md">Selecionar ficheiro local</GradientButton>
             <GradientButton color="pinkToOrange" size="xl" on:click={() => val = 2} class="text-xl drop-shadow-md">Selecionar ficheiro online</GradientButton>
         </div>
-        <a href="/table"><GradientButton color="pinkToOrange" size="xl" on:click={() => val = 0} class="text-xl drop-shadow-md">Ver tabela</GradientButton></a>
+        <div class="flex justify-center items-center gap-8">
+            <a href="/horario"><GradientButton color="pinkToOrange" size="xl" on:click={() => val = 0} class="text-xl drop-shadow-md">Ver horário</GradientButton></a>
+            <a href="/sala"><GradientButton color="pinkToOrange" size="xl" on:click={() => val = 0} class="text-xl drop-shadow-md">Ver salas</GradientButton></a>
+        </div>
+
     {:else if val == 1}
             <Label for="upload" class="text-4xl text-white font-semibold drop-shadow-md">Insira o seu ficheiro CSV</Label>
             <form method="post" enctype="multipart/form-data" class="flex flex-col justify-center items-center gap-8 w-1/3">
