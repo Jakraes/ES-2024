@@ -19,6 +19,7 @@ import Loading from '$lib/components/Loading.svelte';
     <Loading />
 {:then _}
     <div class="h-dvh p-4">
+        <FilterTable data={_} />
     </div>
 {:catch error}
     <p>{error.message}</p>

@@ -52,6 +52,7 @@
             </GradientButton>
         </a>
 
+        <FilterTable data={_} />
     </div>
 {:catch error}
     <p>{error.message}</p>
