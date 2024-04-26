@@ -10,8 +10,7 @@
     /** @type {import('./$types').PageData} */
     export let data;
 
-    let index = 0
-    let search = ''
+
     let js = []
 
     let headers = [];
@@ -19,26 +18,9 @@
 
     onMount(async () => {
         js = await data.json;
-        headers = Object.keys(js[0] || {});
-        headers.forEach(header => {
-            columnVisibility[header] = true;
-        });
     })
 
 
-   function toggleColumnVisibility(index) {
-        columnVisibility[index] = !columnVisibility[index];
-        columnVisibility = [...columnVisibility]; // Atualizar a reatividade
-    }
-
-    function isVisible(column) {
-        return columnVisibility[column] !== false;
-    }
-
-
-    // Filter for all keys
-    $: filteredData = js.filter((row) => Object.keys(row).some((key) => String(row[key]).toLowerCase().includes(search.toLowerCase()))).slice(index, index + 10)
-    //<TableHeadCell on:click={() => toggleColumnVisibility(header)}>{header}{#if isVisible(header)} <AngleDownOutline />{/if}</TableHeadCell>
 
 </script>
 
