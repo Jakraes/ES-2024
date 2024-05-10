@@ -18,7 +18,7 @@
         }
     }
 
-    let diasSemana = [" seg "," ter "," qua "," qui "," sex "," sáb "]
+    let diasSemana = ["seg","ter","qua","qui","sex","sáb"]
 
     function datasEntreDuasDatasFiltro(dataInicio, dataFim, datasExcluidas) {
     const datasEntre = [];
@@ -89,11 +89,18 @@
     })
 
     let listaSala = [];
+    let nome_sala_incluir = "";
+
+    const diasDaSemana = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
     let opcaoSubstituicaoSalaBase = [];
     function criarOpcaoSubstituirSala() {
 
-        let keys = js.map((row) => Object.values(row)[1]);  listaSala = keys;
+        if (opcaoSubstituicaoSalaBase.length>0){
+            opcaoSubstituicaoSalaBase = []
+        }
+
+        listaSala = js.map((row) => Object.values(row)[1]);
         calcularDatas()
 
         const novaOpcaoSubstituicaoSalaBase = [];
@@ -102,66 +109,58 @@
             for (let d of datasResultantes) {
                 for (let i = 0; i < horas.length - 1; i++) {
                     if ((i + 1) % 4 !== 0) {
-                        novaOpcaoSubstituicaoSalaBase.push({
-                            Sala: s,
-                            Data: d,
-                            "Dia da Semana": 0,
-                            "Hora": [horas[i],horas[i + 1]]
-                        });
+
+                        const partesData = d.split('/');
+                        const dia = parseInt(partesData[0], 10); // Converte o dia em um número inteiro
+                        const mes = parseInt(partesData[1], 10) - 1; // Os meses em JavaScript são base 0 (janeiro é 0)
+                        const ano = parseInt(partesData[2], 10);
+
+                        const semana = diasDaSemana[new Date(ano, mes, dia).getDay()]
+
+                        const checkboxIdsemana = `incluir_semana_${semana.trim()}`;
+                        const checkboxsemana = document.getElementById(checkboxIdsemana);
+                        const diaDaSemanaSelecionado = checkboxsemana.checked;
+
+                        const checkboxIdhora = `incluir_hora_${semana.trim()}`; // em falta
+                        const checkboxhora = document.getElementById(checkboxIdhora);
+                        const horaSelecionado = checkboxhora.checked;
+
+
+                        if (diaDaSemanaSelecionado) {
+                            novaOpcaoSubstituicaoSalaBase.push({Sala: s,Data: d, "Dia da Semana": semana, "Hora": [horas[i], horas[i + 1]]});
+                        }
                     }
                 }
             }
         }
 
-    opcaoSubstituicaoSalaBase = novaOpcaoSubstituicaoSalaBase;
+        opcaoSubstituicaoSalaBase = novaOpcaoSubstituicaoSalaBase;
     }
 
 
 </script>
 
-<div class="w-full h-full flex flex-col justify-center items-center gap-16" style="background-color: gray">
+<div class="w-full flex flex-col justify-center items-center gap-16" style="background-color: gray">
     <h1>Substituicao de aula</h1>
-
-    <label for="dataInicio">Data de início:</label>
-    <input type="text" id="dataInicio" bind:value={dataInicio}>
-
-    <label for="dataFim">Data de fim:</label>
-    <input type="text" id="dataFim" bind:value={dataFim}>
-
-    <button on:click={criarOpcaoSubstituirSala}>Calcular Datas</button>
-
-    {#if opcaoSubstituicaoSalaBase.length > 0}
-        <h2>Datas entre {dataInicio} e {dataFim}:</h2>
-        <ul>
-            <FilterTable data={opcaoSubstituicaoSalaBase} />
-         <!--{#each opcaoSubstituicaoSalaBase as opcao}
-            <li>
-
-                {opcao.Sala}|{opcao.Data}|Hora de Início|{opcao["Hora de inicio"]}|Hora de Fim: {opcao["Hora de fim"]}
-
-
-
-            </li>
-        {/each}-->
-    </ul>
-    {/if}
-
 
     <table>
         <tr>
             <th><label>Caracteristicas que quer</label></th>
-            <th><label>Caracteristicas que não quer</label></th>
         </tr>
 
         <tr align="left">
             <th>
-                <label>Data de inicio: <input name="data_inicio_incluir"/></label><br>
-                <label>Data de fim: <input name="data_fim_incluir"/></label><br>
+                <label>Data de inicio:
+                    <input type="text" id="dataInicio" bind:value={dataInicio}>
+                </label><br>
+                <label>Data de fim:
+                    <input type="text" id="dataFim" bind:value={dataFim}>
+                </label><br>
 
                 <label>Dia da semana:<br>
                 {#each diasSemana as item}
                     <label>
-                    <input type="checkbox" name="incluir_{ item }"/>
+                    <input type="checkbox" id="incluir_semana_{ item }" checked/>
                     { item }
                     </label>
                 {/each}</label><br>
@@ -169,33 +168,14 @@
                 <label>Horas:<br>
                  {#each paresHoras as item}
                     <label>
-                    <input type="checkbox" name="incluir_{ item }"/>
-                    { item }<br>
+                    <input type="checkbox" name="incluir_hora{ item }" checked/>
+                    { item } <br>
                     </label>
                 {/each}</label><br>
+                <label>Nome de sala:  <input id="nome_sala_incluir" bind:value={nome_sala_incluir} /></label><br>
                 <label>Tipo de sala:  <input name="tipo_sala_incluir"/></label><br>
             </th>
-            <th>
-                <label>Data de inicio: <input name="data_inicio_incluir"/></label><br>
-                <label>Data de fim: <input name="data_fim_incluir"/></label><br>
 
-                <label>Dia da semana:<br>
-                {#each diasSemana as item}
-                    <label>
-                    <input type="checkbox" name="excluir_{ item }"/>
-                    { item }
-                    </label>
-                {/each}</label><br>
-
-                <label>Horas:<br>
-                 {#each paresHoras as item}
-                    <label>
-                    <input type="checkbox" name="excluir_{ item }"/>
-                    { item }<br>
-                    </label>
-                {/each}</label><br>
-                <label>Tipo de sala:  <input name="tipo_sala_incluir"/></label><br>
-            </th>
 
         </tr>
     </table>
@@ -206,14 +186,16 @@
     <!-- Menu da opçao-->
 
 
+    <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md" on:click={criarOpcaoSubstituirSala}>Calcular Datas</GradientButton>
+    <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md">Adicionar opcao</GradientButton>
 
-    <a href="/upload">
-        <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md">Procurar</GradientButton>
-    </a >
 
-    <a href="/upload">
-        <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md">Adicionar opcao</GradientButton>
-    </a >
+    {#if opcaoSubstituicaoSalaBase.length > 0}
+        <h2>Datas entre {dataInicio} e {dataFim}:</h2>
+        <ul>
+            <FilterTable data={opcaoSubstituicaoSalaBase} />
+        </ul>
+    {/if}
 </div>
 <!--
 {#await data.json}
