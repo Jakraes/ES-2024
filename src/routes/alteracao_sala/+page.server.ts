@@ -8,7 +8,16 @@ export const load = async () => {
     resolve(data);
   });
 
+  const json2 = new Promise((resolve, reject) => {
+    let data = csvToJson.getJsonFromCsv("./uploads/temp.csv");
+    resolve(data);
+  });
+
+  return {
+    json,json2
+  };
+  /**
   return {
     json,
-  };
+  };*/
 };

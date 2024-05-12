@@ -67,25 +67,35 @@
 
     function calcularDatas() {
     datasResultantes = datasEntreDuasDatasFiltro(dataInicio, dataFim,[]);
-    let datas = listaAND(datasResultantes,datas1Semestre);
-    if (datas.length !== 0 ){
-        datasResultantes = listaAND(datasResultantes,datas1Semestre);
-    } else {
-        datasResultantes = listaAND(datasResultantes,datas2Semestre);
-    }
-  }
 
+    const firstSemenstre = listaAND(datasResultantes,datas1Semestre);
+    const secondSemenstre = listaAND(datasResultantes,datas2Semestre);
+
+    if (firstSemenstre.length !== 0 && secondSemenstre.length !== 0){
+        datasResultantes = [... firstSemenstre, ...secondSemenstre]
+    } else {
+        if (firstSemenstre.length !== 0){datasResultantes = firstSemenstre}
+        if (secondSemenstre.length !== 0){datasResultantes = secondSemenstre}
+    }
+
+
+
+  }
+    /**
     let dataInicioExcluir = '';
     let dataFimExcluir = '';
     let datasResultantesExcluir = [];
 
     function calcularDatasExcluir() { datasResultantesExcluir = datasEntreDuasDatasFiltro(dataInicioExcluir, dataFimExcluir,[]); }
+    */
 
     export let data;
     let js;
+    let aulas;
 
     onMount(async () => {
         js = await data.json
+        aulas = await data.json2
     })
 
     let listaSala = [];
@@ -94,20 +104,51 @@
     const diasDaSemana = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
     let opcaoSubstituicaoSalaBase = [];
+    let dados_inicio_aula = [];
+    let dados_fim_aula = [];
+        let dados_dia_aula = [];
+
+    let dados_sala_aula = [];
+
+    let dados_aula = [];
+    function extracao_hora_sala(){
+        dados_inicio_aula= aulas.map((row) => Object.values(row)[6]);
+        dados_fim_aula = aulas.map((row) => Object.values(row)[7]);
+        dados_dia_aula = aulas.map((row) => Object.values(row)[8]);
+        dados_sala_aula = aulas.map((row) => Object.values(row)[10]);
+
+
+        dados_aula = aulas.map((item, index) => {
+        return {
+            'hora_inicio': dados_inicio_aula[index],
+            'hora_final': dados_fim_aula[index],
+            'dia': dados_dia_aula[index],
+            'sala': dados_sala_aula[index]
+        };
+        });
+    }
+
+
     function criarOpcaoSubstituirSala() {
 
         if (opcaoSubstituicaoSalaBase.length>0){
             opcaoSubstituicaoSalaBase = []
         }
-
+        //dados_aula = extracao_hora_sala();
         listaSala = js.map((row) => Object.values(row)[1]);
         calcularDatas()
+        extracao_hora_sala()
+
 
         const novaOpcaoSubstituicaoSalaBase = [];
+
 
         for (let s of listaSala) {
             for (let d of datasResultantes) {
                 for (let i = 0; i < horas.length - 1; i++) {
+                    // criar caso exista uma aula numa sala numa hora
+                    // obter os dados do temp
+                    // percorrer o temp
                     if ((i + 1) % 4 !== 0) {
 
                         const partesData = d.split('/');
@@ -121,13 +162,27 @@
                         const checkboxsemana = document.getElementById(checkboxIdsemana);
                         const diaDaSemanaSelecionado = checkboxsemana.checked;
 
+                        /**
                         const checkboxIdhora = `incluir_hora_${semana.trim()}`; // em falta
                         const checkboxhora = document.getElementById(checkboxIdhora);
-                        const horaSelecionado = checkboxhora.checked;
+                        const horaSelecionado = checkboxhora.checked;*/
 
+                        const horaInicio = horas[i];
+                        const horaFim = horas[i + 1];
 
+                        const conflito = dados_aula.some((aula) => {
+                            return (
+                                aula.hora_inicio === horaInicio &&
+                                aula.hora_final === horaFim &&
+                                aula.dia === d && // Corrigido para comparar com a data atual
+                                aula.sala === s
+                            );
+                        });
+                        console.log(conflito);
                         if (diaDaSemanaSelecionado) {
-                            novaOpcaoSubstituicaoSalaBase.push({Sala: s,Data: d, "Dia da Semana": semana, "Hora": [horas[i], horas[i + 1]]});
+                        if (!conflito) {
+                            novaOpcaoSubstituicaoSalaBase.push({ Sala: s, Data: d, "Dia da Semana": semana, "Hora": [horaInicio, horaFim] });
+                        }
                         }
                     }
                 }
@@ -150,9 +205,7 @@
 
         <tr align="left">
             <th>
-                <label>Data de inicio:
-                    <input type="text" id="dataInicio" bind:value={dataInicio}>
-                </label><br>
+                <label>Data de inicio:<input type="text" id="dataInicio" bind:value={dataInicio}></label><br>
                 <label>Data de fim:
                     <input type="text" id="dataFim" bind:value={dataFim}>
                 </label><br>
@@ -189,23 +242,10 @@
     <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md" on:click={criarOpcaoSubstituirSala}>Calcular Datas</GradientButton>
     <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md">Adicionar opcao</GradientButton>
 
-
     {#if opcaoSubstituicaoSalaBase.length > 0}
-        <h2>Datas entre {dataInicio} e {dataFim}:</h2>
         <ul>
             <FilterTable data={opcaoSubstituicaoSalaBase} />
         </ul>
     {/if}
-</div>
-<!--
-{#await data.json}
-    <Loading />
-{:then _}
-    <div class="h-dvh p-4">
-        <FilterTable data={opcaoSubstituicaoSalaBase} />
+         <!--<h1>{dados_aula}</h1>-->
     </div>
-{:catch error}
-    <p>{error.message}</p>
-{/await}
-
--->
