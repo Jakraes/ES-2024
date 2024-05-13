@@ -34,6 +34,7 @@
         if (!datasExcluidas.includes(dataFormatada) && data.getDay() !== 0 ) {
             datasEntre.push(dataFormatada);
         }
+
     }
 
     return datasEntre;
@@ -55,8 +56,8 @@
     return listaResultado;
   }
 
-    let dataInicio = '';
-    let dataFim = '';
+    let dataInicio = '';//default
+    let dataFim = '';//default
     let datasResultantes = [];
 
     function calcularDatas() {
@@ -239,6 +240,7 @@
     <a href="/upload">
         <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);}}>Retornar Menu</GradientButton>
     </a>
+        <h1 style="color:white">{tipo_alteracao}</h1>
 
     {#if opcaoSubstituicaoSalaBase.length > 0}
         <ul>

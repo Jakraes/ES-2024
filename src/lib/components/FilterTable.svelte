@@ -74,6 +74,15 @@
         .filter((row) => Object.keys(filters).every((key) => filters[key].includes(row[key])))
         .filter((row) => Object.keys(row).some((key) => String(row[key]).toLowerCase().includes(search.toLowerCase())))
         .slice(index, index + 10)
+
+
+    //construcao dados para alterar no registo
+    function realizarUpdateSala(){
+        //colunas 6,7,8,10
+        let aulaUpdate = tipo_alteracao.toString().split(",")
+
+    }
+
 </script>
 
 <div>
@@ -115,18 +124,19 @@
             {/each}
 
         </TableHead>
+
         <TableBody>
             {#each filteredData as row}
                <TableBodyRow>
                    {#if numeroRecebido === 1}
                          <a href="/alteracao_sala">
-                             <TableBodyCell on:click={() => {dados_registo.set(row); numero.set(2)}} class="cursor-pointer">
+                             <TableBodyCell on:click={() => {dados_registo.set(Object.values(row)); numero.set(2)}} class="cursor-pointer">
                                  Alterar Sala
                              </TableBodyCell>
                          </a>
                     {/if}
                     {#if numeroRecebido === 2}
-                        <TableBodyCell>Escolher sala</TableBodyCell>
+                        <TableBodyCell on:click={realizarUpdateSala}>Escolher sala</TableBodyCell>
                     {/if}
 
                     {#each keys as header}
