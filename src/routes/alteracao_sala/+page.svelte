@@ -1,10 +1,8 @@
 <script>
-    import { GradientButton} from 'flowbite-svelte';
+    import {GradientButton, TableBodyCell} from 'flowbite-svelte';
     import {onMount} from "svelte";
     import FilterTable from '$lib/components/FilterTable.svelte';
-    import Loading from '$lib/components/Loading.svelte';
-
-    let colunasOpcao = ["Sala", 'Data','hora de inicio', 'hora de fim', 'tipo de sala']
+    import {dados_registo, numero} from "../../store.js";
 
     let horas = ["08:00:00","09:30:00","11:00:00","12:30:00",
                     "13:00:00","14:30:00","16:00:00","17:30:00",
@@ -21,24 +19,21 @@
     let diasSemana = ["seg","ter","qua","qui","sex","sáb"]
 
     function datasEntreDuasDatasFiltro(dataInicio, dataFim, datasExcluidas) {
-    const datasEntre = [];
+        const datasEntre = [];
+        const partesInicio = dataInicio.split('/');
+        const partesFim = dataFim.split('/');
+        const inicio = new Date(partesInicio[2], partesInicio[1] - 1, partesInicio[0]);
+        const fim = new Date(partesFim[2], partesFim[1] - 1, partesFim[0]);
 
-    const partesInicio = dataInicio.split('/');
-    const partesFim = dataFim.split('/');
+        for (let data = inicio; data <= fim; data.setDate(data.getDate() + 1)) {
+            const dia = data.getDate().toString().padStart(2, '0');
+            const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+            const ano = data.getFullYear();
+            const dataFormatada = `${dia}/${mes}/${ano}`;
 
-    const inicio = new Date(partesInicio[2], partesInicio[1] - 1, partesInicio[0]);
-    const fim = new Date(partesFim[2], partesFim[1] - 1, partesFim[0]);
-
-    for (let data = inicio; data <= fim; data.setDate(data.getDate() + 1)) {
-      const dia = data.getDate().toString().padStart(2, '0');
-      const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-      const ano = data.getFullYear();
-
-      const dataFormatada = `${dia}/${mes}/${ano}`;
-
-      if (!datasExcluidas.includes(dataFormatada) && data.getDay() !== 0 ) {
-        datasEntre.push(dataFormatada);
-      }
+        if (!datasExcluidas.includes(dataFormatada) && data.getDay() !== 0 ) {
+            datasEntre.push(dataFormatada);
+        }
     }
 
     return datasEntre;
@@ -47,7 +42,6 @@
     let datasNatal = datasEntreDuasDatasFiltro("19/12/2022","02/01/2023",[])
     let datasCarnaval = datasEntreDuasDatasFiltro("20/02/2023","26/02/2023",[])
     let datasPascoa = datasEntreDuasDatasFiltro("03/04/2023","15/04/2023",[])
-
     let datas1Semestre = datasEntreDuasDatasFiltro("01/09/2022","17/12/2022",datasNatal)
     let datas2Semestre = datasEntreDuasDatasFiltro("30/01/2023","27/05/2023",[...datasCarnaval, ...datasPascoa])
 
@@ -66,32 +60,21 @@
     let datasResultantes = [];
 
     function calcularDatas() {
-    datasResultantes = datasEntreDuasDatasFiltro(dataInicio, dataFim,[]);
+        datasResultantes = datasEntreDuasDatasFiltro(dataInicio, dataFim,[]);
+        const firstSemenstre = listaAND(datasResultantes,datas1Semestre);
+        const secondSemenstre = listaAND(datasResultantes,datas2Semestre);
 
-    const firstSemenstre = listaAND(datasResultantes,datas1Semestre);
-    const secondSemenstre = listaAND(datasResultantes,datas2Semestre);
-
-    if (firstSemenstre.length !== 0 && secondSemenstre.length !== 0){
-        datasResultantes = [... firstSemenstre, ...secondSemenstre]
-    } else {
-        if (firstSemenstre.length !== 0){datasResultantes = firstSemenstre}
-        if (secondSemenstre.length !== 0){datasResultantes = secondSemenstre}
+        if (firstSemenstre.length !== 0 && secondSemenstre.length !== 0){
+            datasResultantes = [... firstSemenstre, ...secondSemenstre]
+        } else {
+            if (firstSemenstre.length !== 0){datasResultantes = firstSemenstre}
+            if (secondSemenstre.length !== 0){datasResultantes = secondSemenstre}
+        }
     }
 
-
-
-  }
-    /**
-    let dataInicioExcluir = '';
-    let dataFimExcluir = '';
-    let datasResultantesExcluir = [];
-
-    function calcularDatasExcluir() { datasResultantesExcluir = datasEntreDuasDatasFiltro(dataInicioExcluir, dataFimExcluir,[]); }
-    */
-
     export let data;
-    let js;
-    let aulas;
+    let js; //dados da caracterização das salas
+    let aulas; // dados da aulas marcandas
 
     onMount(async () => {
         js = await data.json
@@ -100,23 +83,21 @@
 
     let listaSala = [];
     let nome_sala_incluir = "";
-
     const diasDaSemana = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
     let opcaoSubstituicaoSalaBase = [];
     let dados_inicio_aula = [];
     let dados_fim_aula = [];
-        let dados_dia_aula = [];
-
+    let dados_dia_aula = [];
     let dados_sala_aula = [];
 
     let dados_aula = [];
+
     function extracao_hora_sala(){
         dados_inicio_aula= aulas.map((row) => Object.values(row)[6]);
         dados_fim_aula = aulas.map((row) => Object.values(row)[7]);
         dados_dia_aula = aulas.map((row) => Object.values(row)[8]);
         dados_sala_aula = aulas.map((row) => Object.values(row)[10]);
-
 
         dados_aula = aulas.map((item, index) => {
         return {
@@ -128,20 +109,15 @@
         });
     }
 
-
     function criarOpcaoSubstituirSala() {
 
-        if (opcaoSubstituicaoSalaBase.length>0){
-            opcaoSubstituicaoSalaBase = []
-        }
+        if (opcaoSubstituicaoSalaBase.length>0){opcaoSubstituicaoSalaBase = [] }
         //dados_aula = extracao_hora_sala();
         listaSala = js.map((row) => Object.values(row)[1]);
         calcularDatas()
         extracao_hora_sala()
 
-
         const novaOpcaoSubstituicaoSalaBase = [];
-
 
         for (let s of listaSala) {
             for (let d of datasResultantes) {
@@ -192,6 +168,24 @@
         opcaoSubstituicaoSalaBase = novaOpcaoSubstituicaoSalaBase;
     }
 
+    let tipo_alteracao;
+    let numeroRecebido;
+
+     onMount(() => {
+        const unsubscribe = dados_registo.subscribe(value => {
+            tipo_alteracao = value;
+        });
+
+        const unsubscribe2 = numero.subscribe(value => {
+            numeroRecebido = value;
+        });
+
+        // Certifique-se de cancelar a inscrição ao desmontar o componente
+        return () => {
+            unsubscribe();
+            unsubscribe2();
+        };
+    })
 
 </script>
 
@@ -202,8 +196,7 @@
         <tr>
             <th><label>Caracteristicas que quer</label></th>
         </tr>
-
-        <tr align="left">
+        <tr>
             <th>
                 <label>Data de inicio:<input type="text" id="dataInicio" bind:value={dataInicio}></label><br>
                 <label>Data de fim:
@@ -240,12 +233,17 @@
 
 
     <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md" on:click={criarOpcaoSubstituirSala}>Calcular Datas</GradientButton>
-    <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md">Adicionar opcao</GradientButton>
+    <a href="/horario">
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(1);dados_registo.set([]);}}>Retornar Horario</GradientButton>
+    </a>
+    <a href="/upload">
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);}}>Retornar Menu</GradientButton>
+    </a>
 
     {#if opcaoSubstituicaoSalaBase.length > 0}
         <ul>
             <FilterTable data={opcaoSubstituicaoSalaBase} />
         </ul>
     {/if}
-         <!--<h1>{dados_aula}</h1>-->
+
     </div>

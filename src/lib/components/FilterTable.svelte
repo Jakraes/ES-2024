@@ -1,7 +1,22 @@
 <script lang="ts">
     import { GradientButton, Button, Dropdown, DropdownItem, DropdownDivider, Checkbox, TableSearch, Table, TableHead, TableHeadCell, TableBody, TableBodyCell, TableBodyRow, Footer } from 'flowbite-svelte'
     import { AngleLeftOutline, AngleRightOutline, AngleDownOutline } from 'flowbite-svelte-icons';
-    
+    import {onMount} from "svelte";
+
+    let numeroRecebido;
+    //usado para criar colunas especificas dependendo da table
+    import {dados_registo, numero} from '../../store.js';
+    onMount(() => {
+        const unsubscribe = numero.subscribe(value => {
+            numeroRecebido = value;
+        });
+
+        // Certifique-se de cancelar a inscrição ao desmontar o componente
+        return () => {
+            unsubscribe();
+        };
+    })
+
     export let data;
 
     let keys = data.map((row) => Object.keys(row))[0];
@@ -64,6 +79,7 @@
 <div>
         <GradientButton color="pinkToOrange" on:click={() => download()}>Download</GradientButton>
         <GradientButton color="pinkToOrange" on:click={() => toggle = !toggle}>Filter {#if toggle} <AngleDownOutline />{:else} <AngleRightOutline />{/if}</GradientButton>
+
         <p>{search}</p>
     <Dropdown bind:open={toggle} >
         {#each keys as key}
@@ -84,6 +100,12 @@
     <TableSearch placeholder="Pesquisar..."  bind:inputValue={search} hoverable={true}/>
     <Table>
         <TableHead>
+            {#if numeroRecebido === 1}
+                <TableHeadCell on:click={() => {}} class="cursor-pointer"></TableHeadCell>
+            {/if}
+             {#if numeroRecebido === 2}
+                 <TableBodyCell></TableBodyCell>
+             {/if}
             {#each keys as header}
                 {#if columnVisibility[header]}
                     <TableHeadCell on:click={() => {toggleColumnVisibility(header); console.log(columnVisibility)}} class="cursor-pointer">{header}</TableHeadCell>
@@ -91,10 +113,22 @@
                     <TableHeadCell on:click={() => toggleColumnVisibility(header)}><AngleDownOutline /></TableHeadCell>
                 {/if}
             {/each}
+
         </TableHead>
         <TableBody>
             {#each filteredData as row}
                <TableBodyRow>
+                   {#if numeroRecebido === 1}
+                         <a href="/alteracao_sala">
+                             <TableBodyCell on:click={() => {dados_registo.set(row); numero.set(2)}} class="cursor-pointer">
+                                 Alterar Sala
+                             </TableBodyCell>
+                         </a>
+                    {/if}
+                    {#if numeroRecebido === 2}
+                        <TableBodyCell>Escolher sala</TableBodyCell>
+                    {/if}
+
                     {#each keys as header}
                         {#if columnVisibility[header]}
                             <TableBodyCell>{row[header]}</TableBodyCell>
