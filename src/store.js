@@ -4,6 +4,8 @@ export const numero = writable(0);
 
 export const dados_registo= writable([])
 
+export const numero_registo = writable(-1);
+
 /**
  * Para caso a pagina faz Atualizar não perder os dados da store.js
 const initialNumeroValue = localStorage.getItem('numero') || 0;

@@ -158,7 +158,7 @@
                         console.log(conflito);
                         if (diaDaSemanaSelecionado) {
                         if (!conflito) {
-                            novaOpcaoSubstituicaoSalaBase.push({ Sala: s, Data: d, "Dia da Semana": semana, "Hora": [horaInicio, horaFim] });
+                            novaOpcaoSubstituicaoSalaBase.push({ Sala: s, Data: d, "Dia da Semana": semana, "Hora inicio": horaInicio, "Hora fim": horaFim });
                         }
                         }
                     }
@@ -169,7 +169,7 @@
         opcaoSubstituicaoSalaBase = novaOpcaoSubstituicaoSalaBase;
     }
 
-    let tipo_alteracao;
+    let tipo_alteracao=[];
     let numeroRecebido;
 
      onMount(() => {
@@ -187,6 +187,8 @@
             unsubscribe2();
         };
     })
+
+    
 
 </script>
 

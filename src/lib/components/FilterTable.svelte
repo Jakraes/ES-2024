@@ -3,20 +3,6 @@
     import { AngleLeftOutline, AngleRightOutline, AngleDownOutline } from 'flowbite-svelte-icons';
     import {onMount} from "svelte";
 
-    let numeroRecebido;
-    //usado para criar colunas especificas dependendo da table
-    import {dados_registo, numero} from '../../store.js';
-    onMount(() => {
-        const unsubscribe = numero.subscribe(value => {
-            numeroRecebido = value;
-        });
-
-        // Certifique-se de cancelar a inscrição ao desmontar o componente
-        return () => {
-            unsubscribe();
-        };
-    })
-
     export let data;
 
     let keys = data.map((row) => Object.keys(row))[0];
@@ -76,11 +62,46 @@
         .slice(index, index + 10)
 
 
-    //construcao dados para alterar no registo
-    function realizarUpdateSala(){
-        //colunas 6,7,8,10
-        let aulaUpdate = tipo_alteracao.toString().split(",")
+    let numeroRecebido;
+    let dadosRecebidos=[];
+    //usado para criar colunas especificas dependendo da table
+    import {dados_registo, numero, numero_registo} from '../../store.js';
+    onMount(() => {
+        const unsubscribe = numero.subscribe(value => {
+            numeroRecebido = value;
+        });
 
+        const unsubscribe2 = dados_registo.subscribe(value => {
+            dadosRecebidos = value;
+        });
+
+        // Certifique-se de cancelar a inscrição ao desmontar o componente
+        return () => {
+            unsubscribe();
+            unsubscribe2();
+        };
+    })
+
+    //construcao dados para alterar no registo
+    function realizarUpdateSala(dados, n){
+        numeroRecebido.set(1)
+        let index = n
+        dadosRecebidos[5] = dados[2];
+        dadosRecebidos[6] = dados[3];
+        dadosRecebidos[7] = dados[4];
+        dadosRecebidos[8] = dados[1];
+        dadosRecebidos[10] = dados[0];
+
+        dados_registo.set(dadosRecebidos)
+        //obter numero do registo que quer alterar
+
+        //substituir valor do registo anterior
+
+    }
+
+
+    function getDadosSala(row){
+        dados_registo.set(row)
     }
 
 </script>
@@ -130,13 +151,15 @@
                <TableBodyRow>
                    {#if numeroRecebido === 1}
                          <a href="/alteracao_sala">
-                             <TableBodyCell on:click={() => {dados_registo.set(Object.values(row)); numero.set(2)}} class="cursor-pointer">
+                             <TableBodyCell on:click={() => {getDadosSala(Object.values(row)); numero.set(2); numero_registo.set(row)}} class="cursor-pointer">
                                  Alterar Sala
                              </TableBodyCell>
                          </a>
                     {/if}
                     {#if numeroRecebido === 2}
-                        <TableBodyCell on:click={realizarUpdateSala}>Escolher sala</TableBodyCell>
+                        <a href="/horario">
+                        <TableBodyCell on:click={() => {realizarUpdateSala(Object.values(row),row.id); }}>Escolher sala</TableBodyCell>
+                        </a>
                     {/if}
 
                     {#each keys as header}
