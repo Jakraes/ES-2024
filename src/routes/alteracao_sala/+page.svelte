@@ -110,7 +110,11 @@
     }
 
     function criarOpcaoSubstituirSala() {
-        //obterNumRegisto();
+
+        if(numeroRecebido===3){
+            dados_registo.set("Teste")
+        }
+
         if (opcaoSubstituicaoSalaBase.length>0){opcaoSubstituicaoSalaBase = [] }
         //dados_aula = extracao_hora_sala();
         listaSala = js.map((row) => Object.values(row)[1]);
@@ -174,7 +178,6 @@
     let numeroRecebido;
     let num_registo=-1;
 
-    let dadosteste;
      onMount(() => {
         const unsubscribe = dados_registo.subscribe(value => {
             tipo_alteracao = value;
@@ -199,7 +202,17 @@
 
 <div class="w-full flex flex-col justify-center items-center gap-16" style="background-color: gray">
     <h1>Substituicao de aula</h1>
-            <h1 style="color:white">{dadosteste}</h1>
+
+    {#if numeroRecebido === 3 }
+        <p>
+        <label>Curso:<input type="text"></label><br>
+        <label>Unidade Curricular<input type="text"></label><br>
+        <label>Turno<input type="text"></label><br>
+        <label>Turma<input type="text"></label><br>
+        <label>Inscritos Noturnos<input type="text"></label><br>
+        <label>Caracteristicas pedidas para sala<input type="text"></label><br>
+        </p>
+    {/if}
 
     <table>
         <tr>

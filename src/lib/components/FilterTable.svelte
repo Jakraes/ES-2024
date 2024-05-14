@@ -94,6 +94,11 @@
         //alterar os dados da tabela
         numero.set(1);
 
+        if (numeroRecebido === 3) {
+            //adiciona registo
+        } else {
+
+
         dadosRecebidos[5] = dados[2];
         dadosRecebidos[6] = dados[3];
         dadosRecebidos[7] = dados[4];
@@ -102,22 +107,30 @@
 
         //data[indexRegistoRecebido]
         //d[indexRegistoRecebido] = dadosRecebidos;
-        //dados_registo.set(d[indexRegistoRecebido])
+        const load = async () => {
+            const json2 = new Promise((resolve, reject) => {
+                let data1 = csvToJson.getJsonFromCsv("./uploads/temp.csv");
+                resolve(data1);
+            }); return {json2};
+        }
 
-        const json2 = new Promise((resolve, reject) => {
-            let data = csvToJson.getJsonFromCsv("./uploads/temp.csv");
-            resolve(data);
-        });
+        dados_registo.set(Object.values(load[indexRegistoRecebido]))
+        //json2[indexRegistoRecebido] = dadosRecebidos;
+        //dados_registo.set(Object.values(json2[indexRegistoRecebido]) )
 
         //dados_registo.set(dadosRecebidos)
-        dados_registo.set(Object.values(json2[indexRegistoRecebido]))
-
-        //obter numero do registo que quer alterar
-
-        //substituir valor do registo anterior
-
+        //dados_registo.set(Object.values(json2[indexRegistoRecebido]))
+        //
+        /**
+        const csv = json2.map(row => Object.values(row).join(',')).join('\n')
+        const blob = new Blob([csv], {type: 'text/csv'})
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.download = 'temp.csv'
+        link.href = url
+        link.click()*/
+        }
     }
-
 
     function getDadosSala(row){
         numero.set(2);
@@ -159,9 +172,9 @@
     <Table>
         <TableHead>
             {#if numeroRecebido === 1}
-                <TableHeadCell on:click={() => {}} class="cursor-pointer"></TableHeadCell>
+                <TableHeadCell class="cursor-pointer"></TableHeadCell>
             {/if}
-             {#if numeroRecebido === 2}
+             {#if numeroRecebido === 2 ||numeroRecebido === 3}
                  <TableBodyCell></TableBodyCell>
              {/if}
             {#each keys as header}
@@ -184,7 +197,7 @@
                              </TableBodyCell>
                          </a>
                     {/if}
-                    {#if numeroRecebido === 2}
+                    {#if numeroRecebido === 2 || numeroRecebido === 3}
                         <a href="/horario">
                         <TableBodyCell on:click={() => {realizarUpdateSala(Object.values(row));}}>Escolher sala</TableBodyCell>
                         </a>

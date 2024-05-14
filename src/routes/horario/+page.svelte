@@ -59,12 +59,18 @@ import Loading from '$lib/components/Loading.svelte';
     <h1 style="color: white">{dadosRecebidos}</h1>
     <h1 style="color: white">{numeroRegistoRecebido}</h1>
 
+
 {#await data.json}
     <Loading />
 {:then _}
     <div class="h-dvh p-4">
         <a href="/upload">
         <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);numero_registo.set(-1);}}>Retornar Menu</GradientButton>
+        </a><br>
+        <a href="/alteracao_sala">
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(3);dados_registo.set([]);numero_registo.set(-1);}}>
+            Submeter nova aula
+        </GradientButton>
         </a><br>
         <FilterTable data={_} />
     </div>
