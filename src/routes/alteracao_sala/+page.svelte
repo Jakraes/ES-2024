@@ -2,7 +2,6 @@
     import {GradientButton, TableBodyCell} from 'flowbite-svelte';
     import {onMount} from "svelte";
     import FilterTable from '$lib/components/FilterTable.svelte';
-    import {dados_registo, numero} from "../../store.js";
 
     let horas = ["08:00:00","09:30:00","11:00:00","12:30:00",
                     "13:00:00","14:30:00","16:00:00","17:30:00",
@@ -111,7 +110,7 @@
     }
 
     function criarOpcaoSubstituirSala() {
-
+        //obterNumRegisto();
         if (opcaoSubstituicaoSalaBase.length>0){opcaoSubstituicaoSalaBase = [] }
         //dados_aula = extracao_hora_sala();
         listaSala = js.map((row) => Object.values(row)[1]);
@@ -169,9 +168,13 @@
         opcaoSubstituicaoSalaBase = novaOpcaoSubstituicaoSalaBase;
     }
 
+    import {dados_registo, numero, numero_registo} from "../../store.js";
+
     let tipo_alteracao=[];
     let numeroRecebido;
+    let num_registo=-1;
 
+    let dadosteste;
      onMount(() => {
         const unsubscribe = dados_registo.subscribe(value => {
             tipo_alteracao = value;
@@ -181,19 +184,22 @@
             numeroRecebido = value;
         });
 
+         const unsubscribe3 = numero_registo.subscribe(value => {
+            num_registo = value;
+        });
+
         // Certifique-se de cancelar a inscrição ao desmontar o componente
         return () => {
             unsubscribe();
             unsubscribe2();
+            unsubscribe3();
         };
     })
-
-    
-
 </script>
 
 <div class="w-full flex flex-col justify-center items-center gap-16" style="background-color: gray">
     <h1>Substituicao de aula</h1>
+            <h1 style="color:white">{dadosteste}</h1>
 
     <table>
         <tr>
@@ -237,12 +243,11 @@
 
     <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md" on:click={criarOpcaoSubstituirSala}>Calcular Datas</GradientButton>
     <a href="/horario">
-        <GradientButton color="pinkToOrange" on:click={() => { numero.set(1);dados_registo.set([]);}}>Retornar Horario</GradientButton>
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(1);dados_registo.set([]);numero_registo.set(-1);}}>Retornar Horario</GradientButton>
     </a>
     <a href="/upload">
-        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);}}>Retornar Menu</GradientButton>
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);numero_registo.set(-1);}}>Retornar Menu</GradientButton>
     </a>
-        <h1 style="color:white">{tipo_alteracao}</h1>
 
     {#if opcaoSubstituicaoSalaBase.length > 0}
         <ul>

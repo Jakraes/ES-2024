@@ -64,8 +64,10 @@
 
     let numeroRecebido;
     let dadosRecebidos=[];
+    let indexRegistoRecebido;
     //usado para criar colunas especificas dependendo da table
     import {dados_registo, numero, numero_registo} from '../../store.js';
+    import * as csvToJson from "convert-csv-to-json";
     onMount(() => {
         const unsubscribe = numero.subscribe(value => {
             numeroRecebido = value;
@@ -75,24 +77,41 @@
             dadosRecebidos = value;
         });
 
+        const unsubscribe3 = numero_registo.subscribe(value => {
+            indexRegistoRecebido = value;
+        });
+
         // Certifique-se de cancelar a inscrição ao desmontar o componente
         return () => {
             unsubscribe();
             unsubscribe2();
+            unsubscribe3();
         };
     })
 
     //construcao dados para alterar no registo
-    function realizarUpdateSala(dados, n){
-        numeroRecebido.set(1)
-        let index = n
+    function realizarUpdateSala(dados){
+        //alterar os dados da tabela
+        numero.set(1);
+
         dadosRecebidos[5] = dados[2];
         dadosRecebidos[6] = dados[3];
         dadosRecebidos[7] = dados[4];
         dadosRecebidos[8] = dados[1];
         dadosRecebidos[10] = dados[0];
 
-        dados_registo.set(dadosRecebidos)
+        //data[indexRegistoRecebido]
+        //d[indexRegistoRecebido] = dadosRecebidos;
+        //dados_registo.set(d[indexRegistoRecebido])
+
+        const json2 = new Promise((resolve, reject) => {
+            let data = csvToJson.getJsonFromCsv("./uploads/temp.csv");
+            resolve(data);
+        });
+
+        //dados_registo.set(dadosRecebidos)
+        dados_registo.set(Object.values(json2[indexRegistoRecebido]))
+
         //obter numero do registo que quer alterar
 
         //substituir valor do registo anterior
@@ -101,16 +120,25 @@
 
 
     function getDadosSala(row){
-        dados_registo.set(row)
+        numero.set(2);
+        dados_registo.set(Object.values(row));
+
+        for (let i = 0; i < data.length; i++) {
+            const registro = data[i];
+            if (Object.keys(row).every(key => registro[key] === row[key])) {
+                numero_registo.set(i);
+                break;
+            }
+        }
     }
 
 </script>
 
 <div>
-        <GradientButton color="pinkToOrange" on:click={() => download()}>Download</GradientButton>
-        <GradientButton color="pinkToOrange" on:click={() => toggle = !toggle}>Filter {#if toggle} <AngleDownOutline />{:else} <AngleRightOutline />{/if}</GradientButton>
+    <GradientButton color="pinkToOrange" on:click={() => download()}>Download</GradientButton>
+    <GradientButton color="pinkToOrange" on:click={() => toggle = !toggle}>Filter {#if toggle} <AngleDownOutline />{:else} <AngleRightOutline />{/if}</GradientButton>
 
-        <p>{search}</p>
+    <p>{search}</p>
     <Dropdown bind:open={toggle} >
         {#each keys as key}
             <DropdownItem>{key}</DropdownItem>
@@ -151,14 +179,14 @@
                <TableBodyRow>
                    {#if numeroRecebido === 1}
                          <a href="/alteracao_sala">
-                             <TableBodyCell on:click={() => {getDadosSala(Object.values(row)); numero.set(2); numero_registo.set(row)}} class="cursor-pointer">
+                             <TableBodyCell on:click={() => {getDadosSala(row);}} class="cursor-pointer">
                                  Alterar Sala
                              </TableBodyCell>
                          </a>
                     {/if}
                     {#if numeroRecebido === 2}
                         <a href="/horario">
-                        <TableBodyCell on:click={() => {realizarUpdateSala(Object.values(row),row.id); }}>Escolher sala</TableBodyCell>
+                        <TableBodyCell on:click={() => {realizarUpdateSala(Object.values(row));}}>Escolher sala</TableBodyCell>
                         </a>
                     {/if}
 

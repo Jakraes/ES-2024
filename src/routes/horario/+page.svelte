@@ -64,7 +64,7 @@ import Loading from '$lib/components/Loading.svelte';
 {:then _}
     <div class="h-dvh p-4">
         <a href="/upload">
-        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);}}>Retornar Menu</GradientButton>
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);numero_registo.set(-1);}}>Retornar Menu</GradientButton>
         </a><br>
         <FilterTable data={_} />
     </div>
