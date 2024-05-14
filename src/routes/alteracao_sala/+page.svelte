@@ -112,7 +112,7 @@
     function criarOpcaoSubstituirSala() {
 
         if(numeroRecebido===3){
-            dados_registo.set([])
+            dados_registo.set([curso,uc,turno,turma,inscritos,"","","","",caracteristicas,""] )
         }
 
         if (opcaoSubstituicaoSalaBase.length>0){opcaoSubstituicaoSalaBase = [] }
@@ -141,11 +141,6 @@
                         const checkboxIdsemana = `incluir_semana_${semana.trim()}`;
                         const checkboxsemana = document.getElementById(checkboxIdsemana);
                         const diaDaSemanaSelecionado = checkboxsemana.checked;
-
-                        /**
-                        const checkboxIdhora = `incluir_hora_${semana.trim()}`; // em falta
-                        const checkboxhora = document.getElementById(checkboxIdhora);
-                        const horaSelecionado = checkboxhora.checked;*/
 
                         const horaInicio = horas[i];
                         const horaFim = horas[i + 1];

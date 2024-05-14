@@ -92,11 +92,6 @@
     //construcao dados para alterar no registo
     function realizarUpdateSala(dados){
         //alterar os dados da tabela
-        numero.set(1);
-
-        if (numeroRecebido === 3) {
-            //adiciona registo
-        } else {
 
         dadosRecebidos[5] = dados[2];
         dadosRecebidos[6] = dados[3];
@@ -104,31 +99,40 @@
         dadosRecebidos[8] = dados[1];
         dadosRecebidos[10] = dados[0];
 
-        //data[indexRegistoRecebido]
-        //d[indexRegistoRecebido] = dadosRecebidos;
-        const load = async () => {
-            const json2 = new Promise((resolve, reject) => {
-                let data1 = csvToJson.getJsonFromCsv("./uploads/temp.csv");
-                resolve(data1);
-            }); return {json2};
+
+
+        if (numeroRecebido === 2) {
+            
+            const load = async () => {
+                const json2 = new Promise((resolve, reject) => {
+                    let data1 = csvToJson.getJsonFromCsv("./uploads/temp.csv");
+                    resolve(data1);
+                }); return {json2};
+            }
+
+            load[indexRegistoRecebido] = dadosRecebidos
+            dados_registo.set(Object.values(load[indexRegistoRecebido]))
+
+            //json2[indexRegistoRecebido] = dadosRecebidos;
+            //dados_registo.set(Object.values(json2[indexRegistoRecebido]) )
+
+            //dados_registo.set(dadosRecebidos)
+            //dados_registo.set(Object.values(json2[indexRegistoRecebido]))
+            //
+
+            const csv = json2.map(row => Object.values(row).join(',')).join('\n')
+            const blob = new Blob([csv], {type: 'text/csv'})
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.download = 'temp.csv'
+            link.href = url
+            link.click()
+
+        } else {
+
         }
 
-        dados_registo.set(Object.values(load[indexRegistoRecebido]))
-        //json2[indexRegistoRecebido] = dadosRecebidos;
-        //dados_registo.set(Object.values(json2[indexRegistoRecebido]) )
-
-        //dados_registo.set(dadosRecebidos)
-        //dados_registo.set(Object.values(json2[indexRegistoRecebido]))
-        //
-        /**
-        const csv = json2.map(row => Object.values(row).join(',')).join('\n')
-        const blob = new Blob([csv], {type: 'text/csv'})
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.download = 'temp.csv'
-        link.href = url
-        link.click()*/
-        }
+        numero.set(1);
     }
 
     function getDadosSala(row){
