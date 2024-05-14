@@ -98,7 +98,6 @@
             //adiciona registo
         } else {
 
-
         dadosRecebidos[5] = dados[2];
         dadosRecebidos[6] = dados[3];
         dadosRecebidos[7] = dados[4];

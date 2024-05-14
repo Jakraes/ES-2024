@@ -112,7 +112,7 @@
     function criarOpcaoSubstituirSala() {
 
         if(numeroRecebido===3){
-            dados_registo.set("Teste")
+            dados_registo.set([])
         }
 
         if (opcaoSubstituicaoSalaBase.length>0){opcaoSubstituicaoSalaBase = [] }
@@ -198,6 +198,14 @@
             unsubscribe3();
         };
     })
+
+
+    let curso;
+    let uc;
+    let turno;
+    let turma;
+    let inscritos;
+    let caracteristicas;
 </script>
 
 <div class="w-full flex flex-col justify-center items-center gap-16" style="background-color: gray">
@@ -205,12 +213,12 @@
 
     {#if numeroRecebido === 3 }
         <p>
-        <label>Curso:<input type="text"></label><br>
-        <label>Unidade Curricular<input type="text"></label><br>
-        <label>Turno<input type="text"></label><br>
-        <label>Turma<input type="text"></label><br>
-        <label>Inscritos Noturnos<input type="text"></label><br>
-        <label>Caracteristicas pedidas para sala<input type="text"></label><br>
+        <label>Curso:<input type="text" id="curso" bind:value={curso}></label><br>
+        <label>Unidade Curricular<input type="text" id="uc" bind:value={uc}></label><br>
+        <label>Turno<input type="text" id="turno" bind:value={turno}></label><br>
+        <label>Turma<input type="text" id="turma" bind:value={turma}></label><br>
+        <label>Inscritos Noturnos<input type="text" id="inscritos" bind:value={inscritos}></label><br>
+        <label>Caracteristicas pedidas para sala<input type="text" id="caracteristicas" bind:value={caracteristicas}></label><br>
         </p>
     {/if}
 
