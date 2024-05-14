@@ -148,6 +148,59 @@
         }
     }
 
+    function insereDataSemana(row) {
+        var parts = row[8].split("/");
+        var day = parseInt(parts[0]);
+        var month = parseInt(parts[1]) - 1; // Months are 0-based
+        var year = parseInt(parts[2]);
+
+        // Create a new Date object using the parsed values
+        return calculaDataSemana(year, month, day);
+    }
+
+    function calculaDataSemana(year, month, day) {
+        var date = new Date(year, month, day);
+
+        // Check if the date is valid
+        if (isNaN(date.getTime())) {
+            return NaN; // Invalid date
+        }
+
+        date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+        var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        var weekNumber = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+        return weekNumber;
+    }
+    
+
+    function insereDataSemestre(row) {
+        var parts = row[8].split("/");
+        var day = parseInt(parts[0]);
+        var month = parseInt(parts[1]) - 1;
+        var year = parseInt(parts[2]);
+
+        return calculaDataSemestre(year, month, day);
+    }
+
+    function calculaDataSemestre(year, month, day) {
+        var date = new Date(year, month, day);
+
+        if (isNaN(date.getTime())) {
+            return NaN;
+        }
+
+        var semesterStart;
+        if (date.getMonth() < 6) {
+            semesterStart = new Date(year, 0, 1);
+        } else {
+            semesterStart = new Date(year, 8, 1);
+        }
+
+        var weekNumber =
+            Math.ceil((date - semesterStart) / (7 * 24 * 60 * 60 * 1000)) + 1;
+        return weekNumber;
+    }
+
 </script>
 
 <div>
@@ -187,7 +240,12 @@
                     <TableHeadCell on:click={() => toggleColumnVisibility(header)}><AngleDownOutline /></TableHeadCell>
                 {/if}
             {/each}
-
+            <TableHeadCell on:click={() => {}} class="cursor-pointer"
+                >Semana do Ano</TableHeadCell
+            >
+            <TableHeadCell on:click={() => {}} class="cursor-pointer"
+                >Semana do Semestre</TableHeadCell
+            >
         </TableHead>
 
         <TableBody>
@@ -213,6 +271,12 @@
                             <TableBodyCell></TableBodyCell>
                         {/if}
                     {/each}
+                    <TableBodyCell class="cursor-pointer">
+                        {insereDataSemana(Object.values(row))}
+                    </TableBodyCell>
+                    <TableBodyCell class="cursor-pointer">
+                        {insereDataSemestre(Object.values(row))}
+                    </TableBodyCell>
                 </TableBodyRow>
             {/each}
         </TableBody>
