@@ -148,7 +148,7 @@
         if (date.getMonth() < 6) {
             semesterStart = new Date(year, 0, 1);
         } else {
-            semesterStart = new Date(year, 6, 1);
+            semesterStart = new Date(year, 8, 1);
         }
 
         var weekNumber =
@@ -259,7 +259,7 @@
                     </TableBodyCell>
                     <TableBodyCell class="cursor-pointer"
                         >{calculaDataSemestre(
-                            Object.values(row),
+                            Object.values(row)
                         )}</TableBodyCell
                     >
                 </TableBodyRow>
