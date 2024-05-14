@@ -2,7 +2,6 @@
     import {GradientButton, TableBodyCell} from 'flowbite-svelte';
     import {onMount} from "svelte";
     import FilterTable from '$lib/components/FilterTable.svelte';
-    import {dados_registo, numero} from "../../store.js";
 
     let horas = ["08:00:00","09:30:00","11:00:00","12:30:00",
                     "13:00:00","14:30:00","16:00:00","17:30:00",
@@ -112,6 +111,10 @@
 
     function criarOpcaoSubstituirSala() {
 
+        if(numeroRecebido===3){
+            dados_registo.set([curso,uc,turno,turma,inscritos,"","","","",caracteristicas,""] )
+        }
+
         if (opcaoSubstituicaoSalaBase.length>0){opcaoSubstituicaoSalaBase = [] }
         //dados_aula = extracao_hora_sala();
         listaSala = js.map((row) => Object.values(row)[1]);
@@ -139,11 +142,6 @@
                         const checkboxsemana = document.getElementById(checkboxIdsemana);
                         const diaDaSemanaSelecionado = checkboxsemana.checked;
 
-                        /**
-                        const checkboxIdhora = `incluir_hora_${semana.trim()}`; // em falta
-                        const checkboxhora = document.getElementById(checkboxIdhora);
-                        const horaSelecionado = checkboxhora.checked;*/
-
                         const horaInicio = horas[i];
                         const horaFim = horas[i + 1];
 
@@ -158,7 +156,7 @@
                         console.log(conflito);
                         if (diaDaSemanaSelecionado) {
                         if (!conflito) {
-                            novaOpcaoSubstituicaoSalaBase.push({ Sala: s, Data: d, "Dia da Semana": semana, "Hora": [horaInicio, horaFim] });
+                            novaOpcaoSubstituicaoSalaBase.push({ Sala: s, Data: d, "Dia da Semana": semana, "Hora inicio": horaInicio, "Hora fim": horaFim });
                         }
                         }
                     }
@@ -169,8 +167,11 @@
         opcaoSubstituicaoSalaBase = novaOpcaoSubstituicaoSalaBase;
     }
 
-    let tipo_alteracao;
+    import {dados_registo, numero, numero_registo} from "../../store.js";
+
+    let tipo_alteracao=[];
     let numeroRecebido;
+    let num_registo=-1;
 
      onMount(() => {
         const unsubscribe = dados_registo.subscribe(value => {
@@ -181,17 +182,40 @@
             numeroRecebido = value;
         });
 
+         const unsubscribe3 = numero_registo.subscribe(value => {
+            num_registo = value;
+        });
+
         // Certifique-se de cancelar a inscrição ao desmontar o componente
         return () => {
             unsubscribe();
             unsubscribe2();
+            unsubscribe3();
         };
     })
 
+
+    let curso;
+    let uc;
+    let turno;
+    let turma;
+    let inscritos;
+    let caracteristicas;
 </script>
 
 <div class="w-full flex flex-col justify-center items-center gap-16" style="background-color: gray">
     <h1>Substituicao de aula</h1>
+
+    {#if numeroRecebido === 3 }
+        <p>
+        <label>Curso:<input type="text" id="curso" bind:value={curso}></label><br>
+        <label>Unidade Curricular<input type="text" id="uc" bind:value={uc}></label><br>
+        <label>Turno<input type="text" id="turno" bind:value={turno}></label><br>
+        <label>Turma<input type="text" id="turma" bind:value={turma}></label><br>
+        <label>Inscritos Noturnos<input type="text" id="inscritos" bind:value={inscritos}></label><br>
+        <label>Caracteristicas pedidas para sala<input type="text" id="caracteristicas" bind:value={caracteristicas}></label><br>
+        </p>
+    {/if}
 
     <table>
         <tr>
@@ -235,12 +259,11 @@
 
     <GradientButton color="pinkToOrange" size="xl" class="text-xl drop-shadow-md" on:click={criarOpcaoSubstituirSala}>Calcular Datas</GradientButton>
     <a href="/horario">
-        <GradientButton color="pinkToOrange" on:click={() => { numero.set(1);dados_registo.set([]);}}>Retornar Horario</GradientButton>
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(1);dados_registo.set([]);numero_registo.set(-1);}}>Retornar Horario</GradientButton>
     </a>
     <a href="/upload">
-        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);}}>Retornar Menu</GradientButton>
+        <GradientButton color="pinkToOrange" on:click={() => { numero.set(0);dados_registo.set([]);numero_registo.set(-1);}}>Retornar Menu</GradientButton>
     </a>
-        <h1 style="color:white">{tipo_alteracao}</h1>
 
     {#if opcaoSubstituicaoSalaBase.length > 0}
         <ul>

@@ -3,20 +3,6 @@
     import { AngleLeftOutline, AngleRightOutline, AngleDownOutline } from 'flowbite-svelte-icons';
     import {onMount} from "svelte";
 
-    let numeroRecebido;
-    //usado para criar colunas especificas dependendo da table
-    import {dados_registo, numero} from '../../store.js';
-    onMount(() => {
-        const unsubscribe = numero.subscribe(value => {
-            numeroRecebido = value;
-        });
-
-        // Certifique-se de cancelar a inscrição ao desmontar o componente
-        return () => {
-            unsubscribe();
-        };
-    })
-
     export let data;
 
     let keys = data.map((row) => Object.keys(row))[0];
@@ -76,20 +62,152 @@
         .slice(index, index + 10)
 
 
-    //construcao dados para alterar no registo
-    function realizarUpdateSala(){
-        //colunas 6,7,8,10
-        let aulaUpdate = tipo_alteracao.toString().split(",")
+    let numeroRecebido;
+    let dadosRecebidos=[];
+    let indexRegistoRecebido;
+    //usado para criar colunas especificas dependendo da table
+    import {dados_registo, numero, numero_registo} from '../../store.js';
+    import * as csvToJson from "convert-csv-to-json";
+    onMount(() => {
+        const unsubscribe = numero.subscribe(value => {
+            numeroRecebido = value;
+        });
 
+        const unsubscribe2 = dados_registo.subscribe(value => {
+            dadosRecebidos = value;
+        });
+
+        const unsubscribe3 = numero_registo.subscribe(value => {
+            indexRegistoRecebido = value;
+        });
+
+        // Certifique-se de cancelar a inscrição ao desmontar o componente
+        return () => {
+            unsubscribe();
+            unsubscribe2();
+            unsubscribe3();
+        };
+    })
+
+    //construcao dados para alterar no registo
+    function realizarUpdateSala(dados){
+        //alterar os dados da tabela
+
+        dadosRecebidos[5] = dados[2];
+        dadosRecebidos[6] = dados[3];
+        dadosRecebidos[7] = dados[4];
+        dadosRecebidos[8] = dados[1];
+        dadosRecebidos[10] = dados[0];
+
+
+
+        if (numeroRecebido === 2) {
+            
+            const load = async () => {
+                const json2 = new Promise((resolve, reject) => {
+                    let data1 = csvToJson.getJsonFromCsv("./uploads/temp.csv");
+                    resolve(data1);
+                }); return {json2};
+            }
+
+            load[indexRegistoRecebido] = dadosRecebidos
+            dados_registo.set(Object.values(load[indexRegistoRecebido]))
+
+            //json2[indexRegistoRecebido] = dadosRecebidos;
+            //dados_registo.set(Object.values(json2[indexRegistoRecebido]) )
+
+            //dados_registo.set(dadosRecebidos)
+            //dados_registo.set(Object.values(json2[indexRegistoRecebido]))
+            //
+
+            const csv = json2.map(row => Object.values(row).join(',')).join('\n')
+            const blob = new Blob([csv], {type: 'text/csv'})
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.download = 'temp.csv'
+            link.href = url
+            link.click()
+
+        } else {
+
+        }
+
+        numero.set(1);
+    }
+
+    function getDadosSala(row){
+        numero.set(2);
+        dados_registo.set(Object.values(row));
+
+        for (let i = 0; i < data.length; i++) {
+            const registro = data[i];
+            if (Object.keys(row).every(key => registro[key] === row[key])) {
+                numero_registo.set(i);
+                break;
+            }
+        }
+    }
+
+    function insereDataSemana(row) {
+        var parts = row[8].split("/");
+        var day = parseInt(parts[0]);
+        var month = parseInt(parts[1]) - 1; // Months are 0-based
+        var year = parseInt(parts[2]);
+
+        // Create a new Date object using the parsed values
+        return calculaDataSemana(year, month, day);
+    }
+
+    function calculaDataSemana(year, month, day) {
+        var date = new Date(year, month, day);
+
+        // Check if the date is valid
+        if (isNaN(date.getTime())) {
+            return NaN; // Invalid date
+        }
+
+        date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+        var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        var weekNumber = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+        return weekNumber;
+    }
+    
+
+    function insereDataSemestre(row) {
+        var parts = row[8].split("/");
+        var day = parseInt(parts[0]);
+        var month = parseInt(parts[1]) - 1;
+        var year = parseInt(parts[2]);
+
+        return calculaDataSemestre(year, month, day);
+    }
+
+    function calculaDataSemestre(year, month, day) {
+        var date = new Date(year, month, day);
+
+        if (isNaN(date.getTime())) {
+            return NaN;
+        }
+
+        var semesterStart;
+        if (date.getMonth() < 6) {
+            semesterStart = new Date(year, 0, 1);
+        } else {
+            semesterStart = new Date(year, 8, 1);
+        }
+
+        var weekNumber =
+            Math.ceil((date - semesterStart) / (7 * 24 * 60 * 60 * 1000)) + 1;
+        return weekNumber;
     }
 
 </script>
 
 <div>
-        <GradientButton color="pinkToOrange" on:click={() => download()}>Download</GradientButton>
-        <GradientButton color="pinkToOrange" on:click={() => toggle = !toggle}>Filter {#if toggle} <AngleDownOutline />{:else} <AngleRightOutline />{/if}</GradientButton>
+    <GradientButton color="pinkToOrange" on:click={() => download()}>Download</GradientButton>
+    <GradientButton color="pinkToOrange" on:click={() => toggle = !toggle}>Filter {#if toggle} <AngleDownOutline />{:else} <AngleRightOutline />{/if}</GradientButton>
 
-        <p>{search}</p>
+    <p>{search}</p>
     <Dropdown bind:open={toggle} >
         {#each keys as key}
             <DropdownItem>{key}</DropdownItem>
@@ -110,9 +228,9 @@
     <Table>
         <TableHead>
             {#if numeroRecebido === 1}
-                <TableHeadCell on:click={() => {}} class="cursor-pointer"></TableHeadCell>
+                <TableHeadCell class="cursor-pointer"></TableHeadCell>
             {/if}
-             {#if numeroRecebido === 2}
+             {#if numeroRecebido === 2 ||numeroRecebido === 3}
                  <TableBodyCell></TableBodyCell>
              {/if}
             {#each keys as header}
@@ -122,7 +240,13 @@
                     <TableHeadCell on:click={() => toggleColumnVisibility(header)}><AngleDownOutline /></TableHeadCell>
                 {/if}
             {/each}
-
+            {#if numeroRecebido === 1}
+            <TableHeadCell on:click={() => {}} class="cursor-pointer"
+                >Semana do Ano</TableHeadCell
+            >
+            <TableHeadCell on:click={() => {}} class="cursor-pointer"
+                >Semana do Semestre</TableHeadCell
+            > {/if}
         </TableHead>
 
         <TableBody>
@@ -130,13 +254,15 @@
                <TableBodyRow>
                    {#if numeroRecebido === 1}
                          <a href="/alteracao_sala">
-                             <TableBodyCell on:click={() => {dados_registo.set(Object.values(row)); numero.set(2)}} class="cursor-pointer">
+                             <TableBodyCell on:click={() => {getDadosSala(row);}} class="cursor-pointer">
                                  Alterar Sala
                              </TableBodyCell>
                          </a>
                     {/if}
-                    {#if numeroRecebido === 2}
-                        <TableBodyCell on:click={realizarUpdateSala}>Escolher sala</TableBodyCell>
+                    {#if numeroRecebido === 2 || numeroRecebido === 3}
+                        <a href="/horario">
+                        <TableBodyCell on:click={() => {realizarUpdateSala(Object.values(row));}}>Escolher sala</TableBodyCell>
+                        </a>
                     {/if}
 
                     {#each keys as header}
@@ -146,6 +272,16 @@
                             <TableBodyCell></TableBodyCell>
                         {/if}
                     {/each}
+                   {#if numeroRecebido === 1}
+
+                    <TableBodyCell class="cursor-pointer">
+                        {insereDataSemana(Object.values(row))}
+                    </TableBodyCell>
+                    <TableBodyCell class="cursor-pointer">
+                        {insereDataSemestre(Object.values(row))}
+                    </TableBodyCell>
+
+                    {/if}
                 </TableBodyRow>
             {/each}
         </TableBody>
