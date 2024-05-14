@@ -240,12 +240,13 @@
                     <TableHeadCell on:click={() => toggleColumnVisibility(header)}><AngleDownOutline /></TableHeadCell>
                 {/if}
             {/each}
+            {#if numeroRecebido === 1}
             <TableHeadCell on:click={() => {}} class="cursor-pointer"
                 >Semana do Ano</TableHeadCell
             >
             <TableHeadCell on:click={() => {}} class="cursor-pointer"
                 >Semana do Semestre</TableHeadCell
-            >
+            > {/if}
         </TableHead>
 
         <TableBody>
@@ -271,12 +272,16 @@
                             <TableBodyCell></TableBodyCell>
                         {/if}
                     {/each}
+                   {#if numeroRecebido === 1}
+
                     <TableBodyCell class="cursor-pointer">
                         {insereDataSemana(Object.values(row))}
                     </TableBodyCell>
                     <TableBodyCell class="cursor-pointer">
                         {insereDataSemestre(Object.values(row))}
                     </TableBodyCell>
+
+                    {/if}
                 </TableBodyRow>
             {/each}
         </TableBody>
