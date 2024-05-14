@@ -5,6 +5,11 @@
     let val_2 = 1
     let file = ""
     let input = ""
+
+    import { dados_registo,numero } from '../../store.js';
+
+
+
 </script>
 
 <div class="w-full h-full flex flex-col justify-center items-center gap-10">
@@ -14,7 +19,7 @@
             <GradientButton color="pinkToOrange" size="xl" on:click={() => val = 2} class="text-xl drop-shadow-md">Selecionar ficheiro online</GradientButton>
         </div>
         <div class="flex justify-center items-center gap-8">
-            <a href="/horario"><GradientButton color="pinkToOrange" size="xl" on:click={() => val = 0} class="text-xl drop-shadow-md">Ver horário</GradientButton></a>
+            <a href="/horario"><GradientButton color="pinkToOrange" size="xl" on:click={() => numero.set(1)} class="text-xl drop-shadow-md">Ver horário</GradientButton></a>
             <a href="/sala"><GradientButton color="pinkToOrange" size="xl" on:click={() => val = 0} class="text-xl drop-shadow-md">Ver salas</GradientButton></a>
         </div>
 
